@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html lang="es" ng-app="waWidgetGenerator">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generador de Widget WhatsApp</title>
+    
+    <!-- Bootstrap 3 CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    
+    <!-- Estilos personalizados -->
+    <style>
+        :root {
+            --primary-color: #008785;
+            --secondary-color: #e0f7f7;
+            --accent-color: #00c3c1;
+            --text-color: #333333;
+            --light-bg: #f9f9f9;
+            --border-radius: 8px;
+            --box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', sans-serif;
+            background-color: var(--light-bg);
+            color: var(--text-color);
+            padding-bottom: 60px;
+        }
+        
+        .navbar {
+            background-color: var(--primary-color);
+            border: none;
+            border-radius: 0;
+            margin-bottom: 30px;
+        }
+        
+        .navbar-brand {
+            color: white !important;
+            font-weight: 600;
+        }
+        
+        .panel {
+            border: none;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            margin-bottom: 25px;
+        }
+        
+        .panel-heading {
+            background-color: white;
+            border-bottom: 1px solid #eee;
+            padding: 15px 20px;
+            font-weight: 600;
+        }
+        
+        .panel-body {
+            padding: 20px;
+        }
+        
+        .form-control {
+            border-radius: var(--border-radius);
+            box-shadow: none;
+            border: 1px solid #ddd;
+            height: 42px;
+            padding: 8px 12px;
+        }
+        
+        .form-control:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(0, 135, 133, 0.2);
+        }
+        
+        textarea.form-control {
+            height: auto;
+            min-height: 80px;
+        }
+        
+        .btn-primary {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+            border-radius: 4px;
+            padding: 10px 16px;
+            font-weight: 600;
+        }
+        
+        .btn-primary:hover, .btn-primary:focus {
+            background-color: var(--accent-color);
+            border-color: var(--accent-color);
+        }
+        
+        .color-picker {
+            height: 42px;
+            padding: 4px;
+            cursor: pointer;
+        }
+        
+        .radio-custom {
+            margin: 10px 0;
+        }
+        
+        .preview-container {
+            background-color: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            padding: 20px;
+            margin-top: 20px;
+            position: relative;
+            min-height: 300px;
+        }
+        
+        .preview-title {
+            text-align: center;
+            margin-bottom: 20px;
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+        
+        .preview-frame {
+            border: 1px dashed #ddd;
+            border-radius: var(--border-radius);
+            padding: 15px;
+            background-color: #fafafa;
+            position: relative;
+            height: 400px;
+            overflow: hidden;
+        }
+        
+        .code-container {
+            background-color: #f5f5f5;
+            border-radius: var(--border-radius);
+            padding: 15px;
+            margin-top: 20px;
+        }
+        
+        .code-content {
+            background-color: #2d2d2d;
+            color: #f8f8f2;
+            border-radius: 4px;
+            padding: 15px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            overflow-x: auto;
+        }
+        
+        .btn-copy {
+            margin-top: 10px;
+        }
+        
+        .alert-success {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 9999;
+            padding: 15px 20px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .alert-success.show {
+            opacity: 1;
+        }
+        
+        .saved-configs {
+            margin-top: 20px;
+        }
+        
+        .saved-config-item {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: var(--border-radius);
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .saved-config-name {
+            font-weight: 600;
+        }
+        
+        .saved-config-actions {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .token-button {
+            display: inline-block;
+            background-color: var(--secondary-color);
+            color: var(--primary-color);
+            border: 1px solid var(--primary-color);
+            border-radius: 4px;
+            padding: 5px 10px;
+            margin: 5px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+        
+        .token-button:hover {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        
+        .help-icon {
+            color: var(--primary-color);
+            margin-left: 5px;
+            cursor: pointer;
+        }
+        
+        /* Estilos para el widget embebido */
+        .widget-preview-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+        }
+        
+        /* Estilos para dispositivos móviles */
+        @media (max-width: 768px) {
+            .panel-heading {
+                padding: 12px 15px;
+            }
+            
+            .panel-body {
+                padding: 15px;
+            }
+            
+            .preview-frame {
+                height: 300px;
+            }
+        }
+    </style>
+</head>
+<body ng-controller="MainController">
+    <nav class="navbar navbar-default">
+        <div class="container">
+            <div class="navbar-header">
+                <a class="navbar-brand" href="#">Generador de Widget WhatsApp</a>
+            </div>
+        </div>
+    </nav>
+    
+    <div class="container">
+        <div class="row">
+            <!-- Formulario de configuración -->
+            <div class="col-md-7">
+                <!-- Panel de estilo de botón -->
+                <div class="panel">
+                    <div class="panel-heading">
+                        <span class="glyphicon glyphicon-cog"></span> Estilo de botón
+                        <button class="btn btn-xs btn-default pull-right" ng-click="togglePanel('stylePanel')">
+                            <span class="glyphicon" ng-class="{'glyphicon-minus': panels.stylePanel, 'glyphicon-plus': !panels.stylePanel}"></span>
+                        </button>
+                    </div>
+                    <div class="panel-body" ng-show="panels.stylePanel">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="color">Color de la marca</label>
+                                    <input type="color" id="color" class="form-control color-picker" ng-model="config.color">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="bubbleText">Texto de burbuja de chat (máximo 24 caracteres)</label>
+                                    <input type="text" id="bubbleText" class="form-control" ng-model="config.bubbleText" maxlength="24" placeholder="Chat with us">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Posición</label>
+                            <div class="radio-custom">
+                                <label>
+                                    <input type="radio" ng-model="config.position" value="bottom-left"> Abajo a la izquierda
+                                </label>
+                            </div>
+                            <div class="radio-custom">
+                                <label>
+                                    <input type="radio" ng-model="config.position" value="bottom-right"> Abajo a la derecha
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Panel de configuración del widget -->
+                <div class="panel">
+                    <div class="panel-heading">
+                        <span class="glyphicon glyphicon-wrench"></span> Configuración del widget de chat
+                        <button class="btn btn-xs btn-default pull-right" ng-click="togglePanel('configPanel')">
+                            <span class="glyphicon" ng-class="{'glyphicon-minus': panels.configPanel, 'glyphicon-plus': !panels.configPanel}"></span>
+                        </button>
+                    </div>
+                    <div class="panel-body" ng-show="panels.configPanel">
+                        <div class="form-group">
+                            <label for="email">Comparte tu ID de correo electrónico</label>
+                            <input type="email" id="email" class="form-control" ng-model="config.email" placeholder="Correo electrónico">
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="brand">Nombre de marca</label>
+                                    <input type="text" id="brand" class="form-control" ng-model="config.brand" placeholder="Wati">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="phone">Número de teléfono con código de país</label>
+                                    <input type="text" id="phone" class="form-control" ng-model="config.phone" placeholder="519900012345">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="welcome">Texto de bienvenida (máximo 40 caracteres)</label>
+                            <textarea id="welcome" class="form-control" ng-model="config.welcome" maxlength="40" placeholder="Hi there! How can I help you?"></textarea>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="preset">Mensaje precargado (opcional)</label>
+                            <textarea id="preset" class="form-control" ng-model="config.preset" placeholder="Hello, I have a question about {page_title} ({page_link})"></textarea>
+                            <div class="help-block">
+                                Puedes usar estos tokens:
+                                <span class="token-button" ng-click="insertToken('preset', '{page_link}')">Enlace de página</span>
+                                <span class="token-button" ng-click="insertToken('preset', '{page_title}')">Título de página</span>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>Abrir widget por defecto</label>
+                                    <div class="radio-custom">
+                                        <label>
+                                            <input type="radio" ng-model="config.open" ng-value="true"> Verdadero
+                                        </label>
+                                    </div>
+                                    <div class="radio-custom">
+                                        <label>
+                                            <input type="radio" ng-model="config.open" ng-value="false"> FALSO
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="logo">URL de imagen de marca</label>
+                                    <input type="text" id="logo" class="form-control" ng-model="config.logo" placeholder="https://www.wati.io/wp-content/uploads/2023/04/Wati-logo.svg">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Botón de generación y guardado -->
+                <div class="row">
+                    <div class="col-md-6">
+                        <button class="btn btn-primary btn-block" ng-click="generateCode()">
+                            <span class="glyphicon glyphicon-code"></span> Generar Código del Widget
+                        </button>
+                    </div>
+                    <div class="col-md-6">
+                        <button class="btn btn-default btn-block" ng-click="saveConfig()">
+                            <span class="glyphicon glyphicon-floppy-disk"></span> Guardar Configuración
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Configuraciones guardadas -->
+                <div class="saved-configs" ng-show="savedConfigs.length > 0">
+                    <h4>Configuraciones guardadas</h4>
+                    <div class="saved-config-item" ng-repeat="config in savedConfigs">
+                        <div class="saved-config-name">{{ config.name || 'Configuración ' + ($index + 1) }}</div>
+                        <div class="saved-config-actions">
+                            <button class="btn btn-xs btn-default" ng-click="loadConfig($index)">
+                                <span class="glyphicon glyphicon-open"></span> Cargar
+                            </button>
+                            <button class="btn btn-xs btn-danger" ng-click="deleteConfig($index)">
+                                <span class="glyphicon glyphicon-trash"></span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Vista previa y código generado -->
+            <div class="col-md-5">
+                <!-- Vista previa del widget -->
+                <div class="preview-container">
+                    <h4 class="preview-title">Vista previa del widget de chat</h4>
+                    <div class="preview-frame">
+                        <div class="widget-preview-container" id="widget-preview">
+                            <!-- El widget se insertará aquí dinámicamente -->
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Código generado -->
+                <div class="code-container" ng-show="generatedCode">
+                    <h4>Código generado</h4>
+                    <div class="code-content">{{ generatedCode }}</div>
+                    <button class="btn btn-success btn-copy" ng-click="copyCode()">
+                        <span class="glyphicon glyphicon-copy"></span> Copiar código
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Alerta de copiado -->
+    <div class="alert alert-success" ng-class="{'show': showCopyAlert}">
+        <strong>¡Éxito!</strong> Código copiado al portapapeles.
+    </div>
+    
+    <!-- Scripts -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular.min.js"></script>
+    <script src="widget.js"></script>
+    <script>
+        // Aplicación AngularJS
+        var app = angular.module('waWidgetGenerator', []);
+        
+        app.controller('MainController', function($scope, $timeout) {
+            // Configuración por defecto
+            $scope.config = {
+                phone: '519900012345',
+                brand: 'LiveConnect',
+                color: '#008785',
+                bubbleText: 'Chat with us',
+                welcome: 'Hi there! How can I help you?',
+                preset: 'Hello, I have a question about {page_title} ({page_link})',
+                position: 'bottom-right',
+                open: false,
+                logo: '',
+                lang: 'es',
+                email: ''
+            };
+            
+            // Estado de los paneles (expandidos/colapsados)
+            $scope.panels = {
+                stylePanel: true,
+                configPanel: true
+            };
+            
+            // Código generado
+            $scope.generatedCode = '';
+            
+            // Alerta de copiado
+            $scope.showCopyAlert = false;
+            
+            // Configuraciones guardadas
+            $scope.savedConfigs = [];
+            
+            // Inicializar
+            init();
+            
+            function init() {
+                // Cargar configuraciones guardadas
+                loadSavedConfigs();
+                
+                // Actualizar vista previa inicial
+                $timeout(updatePreview, 100);
+                
+                // Observar cambios en la configuración para actualizar la vista previa
+                $scope.$watch('config', function() {
+                    updatePreview();
+                }, true);
+            }
+            
+            // Alternar visibilidad de paneles
+            $scope.togglePanel = function(panel) {
+                $scope.panels[panel] = !$scope.panels[panel];
+            };
+            
+            // Insertar token en campo de texto
+            $scope.insertToken = function(field, token) {
+                if (!$scope.config[field]) {
+                    $scope.config[field] = '';
+                }
+                $scope.config[field] += token;
+            };
+            
+            // Generar código del widget
+            $scope.generateCode = function() {
+                var scriptTag = '<script async src="https://cdn.ejemplo.com/wa-widget@1.0.0/widget.js"><\/script>';
+                
+                var widgetTag = '<wa-widget\n';
+                widgetTag += '  phone="' + $scope.config.phone + '"\n';
+                widgetTag += '  brand="' + $scope.config.brand + '"\n';
+                widgetTag += '  color="' + $scope.config.color + '"\n';
+                
+                if ($scope.config.bubbleText) {
+                    widgetTag += '  bubble-text="' + $scope.config.bubbleText + '"\n';
+                }
+                
+                if ($scope.config.welcome) {
+                    widgetTag += '  welcome="' + $scope.config.welcome + '"\n';
+                }
+                
+                if ($scope.config.preset) {
+                    widgetTag += '  preset="' + $scope.config.preset + '"\n';
+                }
+                
+                widgetTag += '  position="' + $scope.config.position + '"\n';
+                widgetTag += '  open="' + $scope.config.open + '"\n';
+                
+                if ($scope.config.logo) {
+                    widgetTag += '  logo="' + $scope.config.logo + '"\n';
+                }
+                
+                if ($scope.config.lang) {
+                    widgetTag += '  lang="' + $scope.config.lang + '"\n';
+                }
+                
+                if ($scope.config.email) {
+                    widgetTag += '  email="' + $scope.config.email + '"\n';
+                }
+                
+                widgetTag += '></wa-widget>';
+                
+                $scope.generatedCode = scriptTag + '\n\n' + widgetTag;
+            };
+            
+            // Copiar código al portapapeles
+            $scope.copyCode = function() {
+                // Crear elemento temporal
+                var tempElement = document.createElement('textarea');
+                tempElement.value = $scope.generatedCode;
+                document.body.appendChild(tempElement);
+                
+                // Seleccionar y copiar
+                tempElement.select();
+                document.execCommand('copy');
+                
+                // Eliminar elemento temporal
+                document.body.removeChild(tempElement);
+                
+                // Mostrar alerta de éxito
+                $scope.showCopyAlert = true;
+                $timeout(function() {
+                    $scope.showCopyAlert = false;
+                }, 3000);
+            };
+            
+            // Guardar configuración actual
+            $scope.saveConfig = function() {
+                var configName = prompt('Nombre para esta configuración:', 'Configuración ' + ($scope.savedConfigs.length + 1));
+                
+                if (configName) {
+                    var savedConfig = angular.copy($scope.config);
+                    savedConfig.name = configName;
+                    
+                    $scope.savedConfigs.push(savedConfig);
+                    saveSavedConfigs();
+                }
+            };
+            
+            // Cargar configuración guardada
+            $scope.loadConfig = function(index) {
+                if ($scope.savedConfigs[index]) {
+                    $scope.config = angular.copy($scope.savedConfigs[index]);
+                    updatePreview();
+                }
+            };
+            
+            // Eliminar configuración guardada
+            $scope.deleteConfig = function(index) {
+                if (confirm('¿Estás seguro de que deseas eliminar esta configuración?')) {
+                    $scope.savedConfigs.splice(index, 1);
+                    saveSavedConfigs();
+                }
+            };
+            
+            // Actualizar vista previa
+            function updatePreview() {
+                var previewContainer = document.getElementById('widget-preview');
+                
+                // Limpiar contenedor
+                previewContainer.innerHTML = '';
+                
+                // Crear elemento de widget
+                var widgetElement = document.createElement('wa-widget');
+                
+                // Configurar atributos
+                widgetElement.setAttribute('phone', $scope.config.phone);
+                widgetElement.setAttribute('brand', $scope.config.brand);
+                widgetElement.setAttribute('color', $scope.config.color);
+                
+                if ($scope.config.bubbleText) {
+                    widgetElement.setAttribute('bubble-text', $scope.config.bubbleText);
+                }
+                
+                if ($scope.config.welcome) {
+                    widgetElement.setAttribute('welcome', $scope.config.welcome);
+                }
+                
+                if ($scope.config.preset) {
+                    widgetElement.setAttribute('preset', $scope.config.preset);
+                }
+                
+                widgetElement.setAttribute('position', $scope.config.position);
+                widgetElement.setAttribute('open', $scope.config.open);
+                
+                if ($scope.config.logo) {
+                    widgetElement.setAttribute('logo', $scope.config.logo);
+                }
+                
+                if ($scope.config.lang) {
+                    widgetElement.setAttribute('lang', $scope.config.lang);
+                }
+                
+                if ($scope.config.email) {
+                    widgetElement.setAttribute('email', $scope.config.email);
+                }
+                
+                // Agregar widget al contenedor
+                previewContainer.appendChild(widgetElement);
+            }
+            
+            // Guardar configuraciones en localStorage
+            function saveSavedConfigs() {
+                localStorage.setItem('waWidgetConfigs', JSON.stringify($scope.savedConfigs));
+            }
+            
+            // Cargar configuraciones desde localStorage
+            function loadSavedConfigs() {
+                var savedConfigs = localStorage.getItem('waWidgetConfigs');
+                
+                if (savedConfigs) {
+                    try {
+                        $scope.savedConfigs = JSON.parse(savedConfigs);
+                    } catch (e) {
+                        console.error('Error al cargar configuraciones guardadas:', e);
+                        $scope.savedConfigs = [];
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>

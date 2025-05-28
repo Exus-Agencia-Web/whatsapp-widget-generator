@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prueba de Widget WhatsApp</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        h1 {
+            color: #008785;
+            margin-top: 0;
+        }
+        
+        .test-section {
+            margin-bottom: 30px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+        
+        .test-title {
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+        
+        .test-description {
+            margin-bottom: 15px;
+            color: #666;
+        }
+        
+        .test-result {
+            padding: 10px;
+            background-color: #f9f9f9;
+            border-radius: 4px;
+            font-family: monospace;
+        }
+        
+        .event-log {
+            height: 150px;
+            overflow-y: auto;
+            padding: 10px;
+            background-color: #2d2d2d;
+            color: #f8f8f2;
+            border-radius: 4px;
+            font-family: monospace;
+            margin-top: 10px;
+        }
+        
+        button {
+            background-color: #008785;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 600;
+            margin-right: 10px;
+        }
+        
+        button:hover {
+            background-color: #00c3c1;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Prueba de Widget WhatsApp</h1>
+        
+        <div class="test-section">
+            <div class="test-title">1. Prueba básica de integración</div>
+            <div class="test-description">
+                Verifica que el widget se cargue correctamente con la configuración predeterminada.
+            </div>
+            <div class="test-result">
+                Estado: <span id="test1-result">Pendiente</span>
+            </div>
+        </div>
+        
+        <div class="test-section">
+            <div class="test-title">2. Prueba de API de eventos</div>
+            <div class="test-description">
+                Verifica que los eventos personalizados (wa:opened, wa:closed, wa:click) se disparen correctamente.
+            </div>
+            <div class="test-result">
+                Estado: <span id="test2-result">Pendiente</span>
+                <div class="event-log" id="event-log"></div>
+            </div>
+        </div>
+        
+        <div class="test-section">
+            <div class="test-title">3. Prueba de tokens en mensaje precargado</div>
+            <div class="test-description">
+                Verifica que los tokens {page_title} y {page_link} se reemplacen correctamente.
+            </div>
+            <div class="test-result">
+                Estado: <span id="test3-result">Pendiente</span>
+                <button id="check-tokens">Verificar tokens</button>
+            </div>
+        </div>
+        
+        <div class="test-section">
+            <div class="test-title">4. Prueba de accesibilidad</div>
+            <div class="test-description">
+                Verifica la navegación por teclado y atributos ARIA.
+            </div>
+            <div class="test-result">
+                Estado: <span id="test4-result">Pendiente</span>
+                <button id="check-accessibility">Verificar accesibilidad</button>
+            </div>
+        </div>
+        
+        <div class="test-section">
+            <div class="test-title">5. Prueba de cambio de atributos</div>
+            <div class="test-description">
+                Verifica que el widget responda a cambios en sus atributos.
+            </div>
+            <div class="test-result">
+                Estado: <span id="test5-result">Pendiente</span>
+                <button id="change-color">Cambiar color</button>
+                <button id="change-text">Cambiar texto</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Incluir el script del widget -->
+    <script src="widget.js"></script>
+    
+    <!-- Widget de prueba -->
+    <wa-widget
+        id="test-widget"
+        phone="519900012345"
+        brand="TestBrand"
+        color="#008785"
+        bubble-text="Prueba de chat"
+        welcome="¡Hola! Esta es una prueba del widget."
+        preset="Tengo una pregunta sobre {page_title} ({page_link})"
+        position="bottom-right"
+        open="false"
+        lang="es"
+    ></wa-widget>
+    
+    <script>
+        // Esperar a que el DOM esté completamente cargado
+        document.addEventListener('DOMContentLoaded', function() {
+            // Referencia al widget
+            const widget = document.getElementById('test-widget');
+            const eventLog = document.getElementById('event-log');
+            
+            // Prueba 1: Verificar que el widget se ha cargado
+            if (widget && widget.shadowRoot) {
+                document.getElementById('test1-result').textContent = 'Éxito - Widget cargado correctamente';
+                document.getElementById('test1-result').style.color = 'green';
+            } else {
+                document.getElementById('test1-result').textContent = 'Error - Widget no cargado';
+                document.getElementById('test1-result').style.color = 'red';
+            }
+            
+            // Prueba 2: Verificar eventos
+            function logEvent(event) {
+                const timestamp = new Date().toLocaleTimeString();
+                eventLog.innerHTML += `[${timestamp}] Evento: ${event.type}<br>`;
+                eventLog.scrollTop = eventLog.scrollHeight;
+                
+                document.getElementById('test2-result').textContent = 'Éxito - Eventos detectados';
+                document.getElementById('test2-result').style.color = 'green';
+            }
+            
+            widget.addEventListener('wa:opened', logEvent);
+            widget.addEventListener('wa:closed', logEvent);
+            widget.addEventListener('wa:click', logEvent);
+            
+            // Prueba 3: Verificar tokens
+            document.getElementById('check-tokens').addEventListener('click', function() {
+                // Acceder a la propiedad processedPreset del widget
+                if (widget.processedPreset) {
+                    const decodedPreset = decodeURIComponent(widget.processedPreset);
+                    const hasPageTitle = !decodedPreset.includes('{page_title}');
+                    const hasPageLink = !decodedPreset.includes('{page_link}');
+                    
+                    if (hasPageTitle && hasPageLink) {
+                        document.getElementById('test3-result').textContent = 'Éxito - Tokens reemplazados correctamente';
+                        document.getElementById('test3-result').style.color = 'green';
+                    } else {
+                        document.getElementById('test3-result').textContent = 'Error - Tokens no reemplazados';
+                        document.getElementById('test3-result').style.color = 'red';
+                    }
+                } else {
+                    document.getElementById('test3-result').textContent = 'Error - No se pudo acceder a processedPreset';
+                    document.getElementById('test3-result').style.color = 'red';
+                }
+            });
+            
+            // Prueba 4: Verificar accesibilidad
+            document.getElementById('check-accessibility').addEventListener('click', function() {
+                const shadowRoot = widget.shadowRoot;
+                
+                if (shadowRoot) {
+                    const bubble = shadowRoot.querySelector('.wa-widget-bubble');
+                    const panel = shadowRoot.querySelector('.wa-widget-panel');
+                    
+                    const hasTabIndex = bubble && bubble.hasAttribute('tabindex');
+                    const hasAriaExpanded = bubble && bubble.hasAttribute('aria-expanded');
+                    const hasAriaControls = bubble && bubble.hasAttribute('aria-controls');
+                    const hasRole = panel && panel.hasAttribute('role');
+                    
+                    if (hasTabIndex && hasAriaExpanded && hasAriaControls && hasRole) {
+                        document.getElementById('test4-result').textContent = 'Éxito - Atributos ARIA presentes';
+                        document.getElementById('test4-result').style.color = 'green';
+                    } else {
+                        document.getElementById('test4-result').textContent = 'Error - Faltan atributos ARIA';
+                        document.getElementById('test4-result').style.color = 'red';
+                    }
+                } else {
+                    document.getElementById('test4-result').textContent = 'Error - No se pudo acceder al shadowRoot';
+                    document.getElementById('test4-result').style.color = 'red';
+                }
+            });
+            
+            // Prueba 5: Cambiar atributos
+            document.getElementById('change-color').addEventListener('click', function() {
+                const newColor = '#FF5722';
+                widget.setAttribute('color', newColor);
+                
+                setTimeout(() => {
+                    const shadowRoot = widget.shadowRoot;
+                    if (shadowRoot) {
+                        const computedStyle = getComputedStyle(shadowRoot.host);
+                        const currentColor = computedStyle.getPropertyValue('--wa-color').trim();
+                        
+                        if (currentColor === newColor) {
+                            document.getElementById('test5-result').textContent = 'Éxito - Color actualizado correctamente';
+                            document.getElementById('test5-result').style.color = 'green';
+                        } else {
+                            document.getElementById('test5-result').textContent = 'Error - Color no actualizado';
+                            document.getElementById('test5-result').style.color = 'red';
+                        }
+                    }
+                }, 100);
+            });
+            
+            document.getElementById('change-text').addEventListener('click', function() {
+                const newText = 'Texto cambiado';
+                widget.setAttribute('bubble-text', newText);
+                
+                setTimeout(() => {
+                    const shadowRoot = widget.shadowRoot;
+                    if (shadowRoot) {
+                        const bubbleText = shadowRoot.querySelector('.wa-widget-bubble-text');
+                        
+                        if (bubbleText && bubbleText.textContent === newText) {
+                            document.getElementById('test5-result').textContent = 'Éxito - Texto actualizado correctamente';
+                            document.getElementById('test5-result').style.color = 'green';
+                        } else {
+                            document.getElementById('test5-result').textContent = 'Error - Texto no actualizado';
+                            document.getElementById('test5-result').style.color = 'red';
+                        }
+                    }
+                }, 100);
+            });
+        });
+    </script>
+</body>
+</html>
