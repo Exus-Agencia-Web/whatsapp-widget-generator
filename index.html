@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Generador de Widget WhatsApp</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+  <script src="./widget.js" defer></script>
+</head>
+<body class="bg-gray-100 p-4" x-data="generator()">
+  <h1 class="text-2xl font-bold mb-4">Generador de Widget WhatsApp</h1>
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <form class="space-y-2">
+      <div>
+        <label class="block text-sm font-medium">Teléfono</label>
+        <input type="text" x-model="form.phone" class="w-full border rounded p-2" placeholder="519900012345">
+      </div>
+      <div>
+        <label class="block text-sm font-medium">Marca</label>
+        <input type="text" x-model="form.brand" class="w-full border rounded p-2" placeholder="Wati">
+      </div>
+      <div>
+        <label class="block text-sm font-medium">Color</label>
+        <input type="color" x-model="form.color" class="w-full border rounded p-2">
+      </div>
+      <div>
+        <label class="block text-sm font-medium">Texto burbuja</label>
+        <input type="text" x-model="form.bubbleText" class="w-full border rounded p-2" maxlength="24">
+      </div>
+      <div>
+        <label class="block text-sm font-medium">Mensaje bienvenida</label>
+        <input type="text" x-model="form.welcome" class="w-full border rounded p-2" maxlength="40">
+      </div>
+      <div>
+        <label class="block text-sm font-medium">Mensaje preset</label>
+        <input type="text" x-model="form.preset" class="w-full border rounded p-2">
+      </div>
+      <div>
+        <label class="block text-sm font-medium">Logo URL</label>
+        <input type="text" x-model="form.logo" class="w-full border rounded p-2">
+      </div>
+      <div>
+        <label class="block text-sm font-medium">Posición</label>
+        <select x-model="form.position" class="w-full border rounded p-2">
+          <option value="bottom-right">bottom-right</option>
+          <option value="bottom-left">bottom-left</option>
+        </select>
+      </div>
+      <div>
+        <label class="block text-sm font-medium">Abrir al cargar</label>
+        <input type="checkbox" x-model="form.open" class="ml-2">
+      </div>
+      <div>
+        <label class="block text-sm font-medium">Idioma</label>
+        <input type="text" x-model="form.lang" class="w-full border rounded p-2" placeholder="es">
+      </div>
+      <button type="button" @click="copyCode" class="bg-green-600 text-white px-4 py-2 rounded">Copiar código</button>
+    </form>
+    <div class="relative h-64 bg-white rounded shadow" id="preview">
+      <!-- preview inserted here -->
+    </div>
+  </div>
+
+<script>
+function generator() {
+  return {
+    form: {
+      phone: '',
+      brand: '',
+      color: '#25d366',
+      bubbleText: '',
+      welcome: '',
+      preset: '',
+      logo: '',
+      position: 'bottom-right',
+      open: false,
+      lang: 'es'
+    },
+    init() {
+      this.update();
+      this.$watch('form', () => this.update(), { deep: true });
+    },
+    update() {
+      const container = document.getElementById('preview');
+      container.innerHTML = `<wa-widget
+        phone="${this.form.phone}"
+        brand="${this.form.brand}"
+        color="${this.form.color}"
+        bubble-text="${this.form.bubbleText}"
+        welcome="${this.form.welcome}"
+        preset="${this.form.preset}"
+        logo="${this.form.logo}"
+        position="${this.form.position}"
+        open="${this.form.open}"
+        lang="${this.form.lang}">
+      </wa-widget>`;
+    },
+    copyCode() {
+      const snippet = `<script async src="https://cdn.ejemplo.com/wa-widget@1.0.0/widget.js"></script>\n<wa-widget phone="${this.form.phone}" brand="${this.form.brand}" color="${this.form.color}" bubble-text="${this.form.bubbleText}" welcome="${this.form.welcome}" preset="${this.form.preset}" position="${this.form.position}" open="${this.form.open}" logo="${this.form.logo}" lang="${this.form.lang}"></wa-widget>`;
+      navigator.clipboard.writeText(snippet).then(() => alert('Código copiado'));
+    }
+  }
+}
+</script>
+</body>
+</html>
