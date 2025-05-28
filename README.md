@@ -15,8 +15,8 @@ Este proyecto proporciona un generador visual para crear widgets de WhatsApp per
 ## Estructura del Proyecto
 
 ```
-wa-widget-generator/
-├── src/
+whatsapp-widget-generator/
+├── whatsapp-widget/
 │   ├── widget.js       # Web Component autocontenido
 │   └── index.html      # Interfaz del generador
 ├── test/
