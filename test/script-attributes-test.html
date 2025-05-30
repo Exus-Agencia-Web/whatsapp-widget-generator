@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prueba de Widget WhatsApp con Atributos en Script</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        h1 {
+            color: #008785;
+            margin-top: 0;
+        }
+        
+        .test-section {
+            margin-bottom: 30px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+        
+        .test-title {
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+        
+        .test-description {
+            margin-bottom: 15px;
+            color: #666;
+        }
+        
+        pre {
+            background-color: #f9f9f9;
+            padding: 10px;
+            border-radius: 4px;
+            overflow-x: auto;
+        }
+        
+        code {
+            font-family: monospace;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Prueba de Widget WhatsApp con Atributos en Script</h1>
+        
+        <div class="test-section">
+            <div class="test-title">Inicialización con atributos en la etiqueta script</div>
+            <div class="test-description">
+                El widget debe inicializarse automáticamente usando los atributos definidos en la etiqueta script.
+            </div>
+            <pre><code>&lt;script
+  async 
+  src="../whatsapp-widget/widget.js"
+  phone="519900012345"
+  brand="LiveConnect Test"
+  color="#FF5722"
+  bubble-text="Prueba de atributos"
+  welcome="¡Hola! Esta es una prueba de inicialización con atributos en script."
+  position="bottom-right"
+  delay="3"
+&gt;&lt;/script&gt;</code></pre>
+        </div>
+    </div>
+    
+    <!-- Incluir el script del widget con atributos -->
+    <script
+      async 
+      src="../whatsapp-widget/widget.js"
+      phone="519900012345"
+      brand="LiveConnect Test"
+      color="#FF5722"
+      bubble-text="Prueba de atributos"
+      welcome="¡Hola! Esta es una prueba de inicialización con atributos en script."
+      position="bottom-right"
+      delay="3"
+    ></script>
+</body>
+</html>
