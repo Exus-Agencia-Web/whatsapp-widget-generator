@@ -432,24 +432,45 @@ class WhatsAppWidget extends HTMLElement {
 // Registrar el componente personalizado
 customElements.define('wa-widget', WhatsAppWidget);
 
-// Función para inicializar el widget con configuración desde el script
-function initWhatsAppWidget(config = {}) {
+// Función para obtener el script actual
+function getCurrentScript() {
+  // Intentar obtener el script actual
+  if (document.currentScript) {
+    return document.currentScript;
+  }
+  
+  // Fallback para navegadores que no soportan currentScript
+  const scripts = document.getElementsByTagName('script');
+  for (let i = scripts.length - 1; i >= 0; i--) {
+    const script = scripts[i];
+    if (script.src && script.src.includes('whatsapp-widget')) {
+      return script;
+    }
+  }
+  
+  return null;
+}
+
+// Función para inicializar el widget desde los atributos del script
+function initWidgetFromScriptAttributes() {
+  const script = getCurrentScript();
+  if (!script) return;
+  
+  // Lista de atributos válidos
+  const validAttributes = [
+    'phone', 'brand', 'color', 'bubble-text', 'welcome', 'preset',
+    'position', 'open', 'logo', 'lang', 'email', 'delay'
+  ];
+  
   // Crear elemento wa-widget
   const widget = document.createElement('wa-widget');
   
-  // Configurar atributos
-  if (config.phone) widget.setAttribute('phone', config.phone);
-  if (config.brand) widget.setAttribute('brand', config.brand);
-  if (config.color) widget.setAttribute('color', config.color);
-  if (config.bubbleText) widget.setAttribute('bubble-text', config.bubbleText);
-  if (config.welcome) widget.setAttribute('welcome', config.welcome);
-  if (config.preset) widget.setAttribute('preset', config.preset);
-  if (config.position) widget.setAttribute('position', config.position);
-  if (config.open) widget.setAttribute('open', config.open.toString());
-  if (config.logo) widget.setAttribute('logo', config.logo);
-  if (config.lang) widget.setAttribute('lang', config.lang);
-  if (config.email) widget.setAttribute('email', config.email);
-  if (config.delay) widget.setAttribute('delay', config.delay.toString());
+  // Transferir atributos del script al widget
+  validAttributes.forEach(attr => {
+    if (script.hasAttribute(attr)) {
+      widget.setAttribute(attr, script.getAttribute(attr));
+    }
+  });
   
   // Añadir al DOM
   document.body.appendChild(widget);
@@ -457,12 +478,40 @@ function initWhatsAppWidget(config = {}) {
   return widget;
 }
 
-// Auto-inicialización si se detecta configuración global
+// Auto-inicialización cuando el DOM esté listo
 document.addEventListener('DOMContentLoaded', () => {
+  // Inicializar desde atributos del script
+  initWidgetFromScriptAttributes();
+  
+  // Mantener compatibilidad con la configuración global
   if (window.waWidgetConfig) {
-    initWhatsAppWidget(window.waWidgetConfig);
+    const widget = document.createElement('wa-widget');
+    
+    // Configurar atributos desde el objeto global
+    Object.entries(window.waWidgetConfig).forEach(([key, value]) => {
+      if (value !== undefined && value !== null) {
+        widget.setAttribute(key.replace(/([A-Z])/g, '-$1').toLowerCase(), value.toString());
+      }
+    });
+    
+    // Añadir al DOM
+    document.body.appendChild(widget);
   }
 });
 
-// Exponer función de inicialización globalmente
-window.initWhatsAppWidget = initWhatsAppWidget;
+// Exponer función de inicialización manual
+window.initWhatsAppWidget = function(config = {}) {
+  const widget = document.createElement('wa-widget');
+  
+  // Configurar atributos
+  Object.entries(config).forEach(([key, value]) => {
+    if (value !== undefined && value !== null) {
+      widget.setAttribute(key.replace(/([A-Z])/g, '-$1').toLowerCase(), value.toString());
+    }
+  });
+  
+  // Añadir al DOM
+  document.body.appendChild(widget);
+  
+  return widget;
+};
