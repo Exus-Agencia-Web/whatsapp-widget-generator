@@ -22,7 +22,7 @@ env:
   # Directorio local que deseas publicar
   LOCAL_PATH: whatsapp-widget/      # ← cámbialo si tu output es otro
   # Endpoint S3-compatible de R2
-  R2_ENDPOINT: https://${{ secrets.CF_R2_ACCOUNT_ID }}.r2.cloudflarestorage.com
+  R2_ENDPOINT: https://43bec970a659d9855deccd162ed3ebdd.r2.cloudflarestorage.com
   R2_BUCKET: liveconnect         # ← cambia si tu bucket se llama distinto
   R2_FOLDER: whatsapp-widget     # ← carpeta/prefijo en el bucket
 
