@@ -441,16 +441,16 @@
                     </div>
                     <div class="col-md-6">
                         <button class="btn btn-primary btn-block" ng-click="saveConfig()">
-                            <span class="glyphicon glyphicon-floppy-disk"></span> Guardar Configuración
+                            <span class="glyphicon glyphicon-floppy-disk"></span> Guardar Plantilla
                         </button>
                     </div>
                 </div>
                 
-                <!-- Configuraciones guardadas -->
+                <!-- Plantillas guardadas -->
                 <div class="saved-configs" ng-show="savedConfigs.length > 0">
-                    <h4>Configuraciones guardadas</h4>
+                    <h4>Plantillas guardadas</h4>
                     <div class="saved-config-item" ng-repeat="config in savedConfigs">
-                        <div class="saved-config-name">{{ config.name || 'Configuración ' + ($index + 1) }}</div>
+                        <div class="saved-config-name">{{ config.name || 'Plantilla ' + ($index + 1) }}</div>
                         <div class="saved-config-actions">
                             <button class="btn btn-xs btn-default" ng-click="loadConfig($index)">
                                 <span class="glyphicon glyphicon-open"></span> Cargar
@@ -749,7 +749,7 @@
             
             // Guardar configuración actual
             $scope.saveConfig = function() {
-                var configName = prompt('Nombre para esta configuración:', 'Configuración ' + ($scope.savedConfigs.length + 1));
+                var configName = prompt('Nombre para esta plantilla:', 'Plantilla ' + ($scope.savedConfigs.length + 1));
                 
                 if (configName) {
                     var savedConfig = angular.copy($scope.config);
