@@ -338,10 +338,10 @@
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label for="delay">Retraso para mostrar el widget <small>({{ config.delay }}s)</small></label>
-                                    <input type="range" id="delay" class="form-control" ng-model="config.delay" min="0" max="120" step="1" style="width:100%;">
+                                    <input type="range" id="delay" class="form-control" ng-model="config.delay" min="0" max="30" step="1" style="width:100%;">
                                     <div>
                                         <span>0s</span>
-                                        <span class="pull-right">120s</span>
+                                        <span class="pull-right">30s</span>
                                     </div>
                                 </div>
                             </div>
@@ -592,13 +592,27 @@
             function init() {
                 // Cargar configuraciones guardadas
                 loadSavedConfigs();
-                
-                // Actualizar vista previa inicial
-                $timeout(updatePreview, 100);
-                
-                // Observar cambios en la configuración para actualizar la vista previa
+
+                // Cargar configuración actual desde localStorage
+                var storedConfig = localStorage.getItem('waCurrentConfig');
+                if (storedConfig) {
+                    try {
+                        $scope.config = angular.extend({}, $scope.config, JSON.parse(storedConfig));
+                    } catch (e) {
+                        console.error('Error al cargar la configuración actual:', e);
+                    }
+                }
+
+                // Actualizar vista previa inicial y guardar configuración
+                $timeout(function() {
+                    updatePreview();
+                    saveCurrentConfig();
+                }, 100);
+
+                // Observar cambios en la configuración para actualizar la vista previa y guardar
                 $scope.$watch('config', function() {
                     updatePreview();
+                    saveCurrentConfig();
                 }, true);
             }
             
@@ -882,6 +896,15 @@
                 $scope.generateCode();
             }
             
+            // Guardar la configuración actual en localStorage
+            function saveCurrentConfig() {
+                try {
+                    localStorage.setItem('waCurrentConfig', JSON.stringify($scope.config));
+                } catch (e) {
+                    console.error('Error al guardar la configuración actual:', e);
+                }
+            }
+
             // Guardar configuraciones en localStorage
             function saveSavedConfigs() {
                 localStorage.setItem('waWidgetConfigs', JSON.stringify($scope.savedConfigs));
