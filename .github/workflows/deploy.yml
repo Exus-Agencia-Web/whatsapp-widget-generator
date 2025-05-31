@@ -41,6 +41,9 @@ jobs:
           # Desactiva la llamada al metadata service de AWS
           export AWS_EC2_METADATA_DISABLED=true
           
+          # Establece una región dummy que exige AWS CLI
+          aws configure set default.region us-east-1
+
           # Subida con eliminación de archivos obsoletos (--delete)
           aws s3 sync "$LOCAL_PATH" \
             "s3://liveconnect/whatsapp-widget" \
