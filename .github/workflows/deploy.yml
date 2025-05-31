@@ -1,0 +1,48 @@
+name: Deploy a Cloudflare R2
+
+# ──────── Ajusta aquí ───────────────────────────────
+# 1) Añade estos secretos en tu repo:
+#    • CF_R2_ACCESS_KEY_ID
+#    • CF_R2_SECRET_ACCESS_KEY
+#    • CF_R2_ACCOUNT_ID      (el ID numérico de tu cuenta)
+#
+# 2) Si tu build genera los archivos en otra carpeta,
+#    cambia LOCAL_PATH más abajo.
+# ────────────────────────────────────────────────────
+
+on:
+  push:
+    branches: [main]     # deploy en cada commit a main
+  workflow_dispatch:     # opción de ejecutarlo manualmente
+
+env:
+  # Directorio local que deseas publicar
+  LOCAL_PATH: whatsapp-widget/      # ← cámbialo si tu output es otro
+  # Endpoint S3-compatible de R2
+  R2_ENDPOINT: https://${{ secrets.CF_R2_ACCOUNT_ID }}.r2.cloudflarestorage.com
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout del código
+        uses: actions/checkout@v4
+
+      # (Opcional) Construye tu proyecto antes de subir
+      # - name: Build
+      #   run: npm ci && npm run build
+
+      - name: Sincronizar a Cloudflare R2
+        env:
+          AWS_ACCESS_KEY_ID:     ${{ secrets.CF_R2_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.CF_R2_SECRET_ACCESS_KEY }}
+        run: |
+          # Desactiva la llamada al metadata service de AWS
+          export AWS_EC2_METADATA_DISABLED=true
+          
+          # Subida con eliminación de archivos obsoletos (--delete)
+          aws s3 sync "$LOCAL_PATH" \
+            "s3://liveconnect/whatsapp-widget" \
+            --endpoint-url "$R2_ENDPOINT" \
+            --delete
