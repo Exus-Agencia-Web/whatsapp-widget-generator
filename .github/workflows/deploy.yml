@@ -21,10 +21,12 @@ on:
 env:
   # Directorio local que deseas publicar
   LOCAL_PATH: whatsapp-widget/      # ← cámbialo si tu output es otro
+  
   # Endpoint S3-compatible de R2
   R2_ENDPOINT: https://43bec970a659d9855deccd162ed3ebdd.r2.cloudflarestorage.com
-  R2_BUCKET: liveconnect         # ← cambia si tu bucket se llama distinto
-  R2_FOLDER: whatsapp-widget     # ← carpeta/prefijo en el bucket
+  R2_BUCKET: liveconnect
+  R2_FOLDER: whatsapp-widget
+  CF_ZONE_ID: 366d2651e6bb5cc9abdb5af9df6fea67
 
 jobs:
   deploy:
@@ -60,3 +62,15 @@ jobs:
             "s3://${{ env.R2_BUCKET }}/${{ env.R2_FOLDER }}" \
             --endpoint-url "$R2_ENDPOINT" \
             --delete
+
+      - name: Purgar caché de Cloudflare CDN
+        run: |
+          curl -X POST "https://api.cloudflare.com/client/v4/zones/${{ env.CF_ZONE_ID }}/purge_cache" \
+            -H "Authorization: Bearer ${{ secrets.CF_API_TOKEN }}" \
+            -H "Content-Type: application/json" \
+            --data '{
+              "files": [
+                "https://cdn.liveconnect.chat/whatsapp-widget/widget.js",
+                "https://cdn.liveconnect.chat/whatsapp-widget/widget.min.js"
+              ]
+            }'
