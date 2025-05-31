@@ -1,0 +1,27 @@
+{
+  "name": "whatsapp-widget-generator",
+  "version": "1.0.0",
+  "description": "Este proyecto proporciona un generador visual para crear widgets de WhatsApp personalizables que pueden integrarse fácilmente en cualquier sitio web. El widget se implementa como un Web Component con Shadow DOM para aislamiento de estilos y no depende de frameworks externos.",
+  "main": "index.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/herduin/whatsapp-widget-generator.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/herduin/whatsapp-widget-generator/issues"
+  },
+  "homepage": "https://github.com/herduin/whatsapp-widget-generator#readme",
+  "devDependencies": {
+    "terser": "^5.40.0"
+  }
+}

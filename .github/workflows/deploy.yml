@@ -38,6 +38,12 @@ jobs:
       # - name: Build
       #   run: npm ci && npm run build
 
+      - name: Minificar widget.js
+        run: |
+          npx terser "$LOCAL_PATH/widget.js" \
+            -o "$LOCAL_PATH/widget.min.js" \
+            --compress --mangle
+
       - name: Sincronizar a Cloudflare R2
         env:
           AWS_ACCESS_KEY_ID:     ${{ secrets.CF_R2_ACCESS_KEY_ID }}
