@@ -551,7 +551,7 @@
         // Aplicación AngularJS
         var app = angular.module('waWidgetGenerator', []);
         
-        app.controller('MainController', function($scope, $timeout) {
+        app.controller('MainController', ['$scope', '$timeout', function($scope, $timeout) {
             // Configuración por defecto
             $scope.config = {
                 phone: '57300123456',
@@ -923,7 +923,7 @@
                     }
                 }
             }
-        });
+        }]);
     </script>
 </body>
 </html>
