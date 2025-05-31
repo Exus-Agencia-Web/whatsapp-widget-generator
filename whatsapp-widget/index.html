@@ -84,6 +84,21 @@
             padding: 10px 16px;
             font-weight: 600;
         }
+
+        .btn-default {
+            padding: 10px 16px;
+            font-weight: 600;
+            border-radius: 4px;
+        }
+
+        /* Ajuste para mantener los botones extra pequeños (btn-xs) con su tamaño correcto */
+        .btn-default.btn-xs,
+        .btn-xs.btn-default {
+            padding: 1px 5px;
+            font-size: 12px;
+            line-height: 1.5;
+            border-radius: 3px;
+        }
         
         .btn-primary:hover, .btn-primary:focus {
             background-color: var(--accent-color);
@@ -134,13 +149,14 @@
         }
         
         .code-content {
-            background-color: #2d2d2d;
-            color: #f8f8f2;
+            background-color: var(--primary-color);
+            color: var(--secondary-color);
             border-radius: 4px;
             padding: 15px;
             font-family: monospace;
             white-space: pre-wrap;
             overflow-x: auto;
+            font-size: 13px;
         }
         
         .btn-copy {
@@ -203,11 +219,6 @@
             color: white;
         }
         
-        .help-icon {
-            color: var(--primary-color);
-            margin-left: 5px;
-            cursor: pointer;
-        }
         
         /* Estilos para el widget embebido */
         .widget-preview-container {
@@ -287,7 +298,11 @@
     <nav class="navbar navbar-default">
         <div class="container">
             <div class="navbar-header">
-                <a class="navbar-brand" href="#">Generador de Widgets de WhatsApp by LiveConnect®</a>
+                <a class="navbar-brand" href="#">
+                    <span class="hidden-xs">Generador de </span>
+                    Widgets de WhatsApp
+                    by LiveConnect®
+                </a>
             </div>
         </div>
     </nav>
@@ -420,14 +435,12 @@
                 <!-- Botón de generación y guardado -->
                 <div class="row">
                     <div class="col-md-6">
-                        <!-- 
-                        <button class="btn btn-primary btn-block" ng-click="generateCode()">
-                            <span class="glyphicon glyphicon-code"></span> Generar Código del Widget
+                        <button class="btn btn-default btn-block" ng-click="importarWidget()">
+                            <span class="glyphicon glyphicon-import"></span> Importar desde Widget
                         </button>
-                         -->
                     </div>
                     <div class="col-md-6">
-                        <button class="btn btn-default btn-block" ng-click="saveConfig()">
+                        <button class="btn btn-primary btn-block" ng-click="saveConfig()">
                             <span class="glyphicon glyphicon-floppy-disk"></span> Guardar Configuración
                         </button>
                     </div>
@@ -467,13 +480,39 @@
                     <h4>Código de tu widget</h4>
                     <ul class="nav nav-tabs code-tabs">
                         <li ng-class="{'active': codeTab === 'script'}">
-                            <a href="" ng-click="setCodeTab('script')">Atributos en Script</a>
+                            <a href="" ng-click="setCodeTab('script')">Recomendado</a>
                         </li>
                         <li ng-class="{'active': codeTab === 'element'}">
-                            <a href="" ng-click="setCodeTab('element')">Elemento Personalizado</a>
+                            <a href="" ng-click="setCodeTab('element')">Alterno</a>
+                        </li>
+                        <li ng-class="{'active': codeTab === 'instrucciones'}">
+                            <a href="" ng-click="setCodeTab('instrucciones')">Instrucciones</a>
                         </li>
                     </ul>
-                    <div class="code-content">{{ generatedCode }}</div>
+                    <div ng-if="codeTab === 'instrucciones'">
+                        <!-- Instrucciones -->
+                        <ul>
+                            <li>
+                                <strong>Para instalar el widget en tu sitio web:</strong><br>
+                                Copia el código generado y pégalo justo antes de la etiqueta <code>&lt;/body&gt;</code> de tu sitio web.
+                            </li>
+                            <li>
+                                <strong>Para instalarlo usando Google Tag Manager:</strong><br>
+                                <ol>
+                                    <li>Entra a tu cuenta de Google Tag Manager y selecciona tu contenedor.</li>
+                                    <li>Haz clic en <strong>Agregar nueva etiqueta</strong>.</li>
+                                    <li>Selecciona <strong>Etiqueta HTML personalizada</strong>.</li>
+                                    <li>Pega el código generado en el campo de HTML.</li>
+                                    <li>Configura el activador (por ejemplo, <strong>All Pages</strong> para que cargue en todas las páginas).</li>
+                                    <li>Guarda y publica los cambios.</li>
+                                </ol>
+                            </li>
+                            <li>
+                                <strong>¡Listo!</strong> El widget aparecerá automáticamente en tu sitio según la configuración elegida.
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="code-content" ng-show="codeTab=='script' || codeTab=='element'">{{ generatedCode }}</div>
                     <div class="text-right">
                         <button class="btn btn-primary btn-copy" ng-click="copyCode()">
                             <span class="glyphicon glyphicon-copy"></span> Copiar código
@@ -493,7 +532,7 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular.min.js"></script>
-    <script src="widget.min.js"></script>
+    <script src="widget.js"></script>
     <script>
 
         (function() {
@@ -721,6 +760,67 @@
                     $scope.savedConfigs.splice(index, 1);
                     saveSavedConfigs();
                 }
+            };
+
+            // Importar configuración desde un código de widget
+            $scope.importarWidget = function() {
+                var code = prompt('Pega el código de tu widget:', '');
+                if (!code) {
+                    return;
+                }
+
+                // Analizar el código pegado
+                var parser = new DOMParser();
+                var doc = parser.parseFromString(code, 'text/html');
+
+                // Buscar un elemento <wa-widget> o un <script src="...widget.min.js">
+                var widgetEl = doc.querySelector('wa-widget') || doc.querySelector('script[src*="widget.min.js"]');
+                if (!widgetEl) {
+                    alert('El código ingresado no es un widget válido.');
+                    return;
+                }
+
+                // Mapeo atributo -> propiedad de configuración
+                var attrMap = {
+                    'phone': 'phone',
+                    'brand': 'brand',
+                    'color': 'color',
+                    'bubble-text': 'bubbleText',
+                    'welcome': 'welcome',
+                    'preset': 'preset',
+                    'position': 'position',
+                    'open': 'open',
+                    'logo': 'logo',
+                    'lang': 'lang',
+                    'email': 'email',
+                    'delay': 'delay'
+                };
+
+                // Copiar configuración actual para no mutar directamente
+                var importedConfig = angular.copy($scope.config);
+
+                // Recorrer atributos del elemento
+                angular.forEach(widgetEl.attributes, function(attr) {
+                    var key = attrMap[attr.name];
+                    if (!key) {
+                        return; // atributo no reconocido
+                    }
+
+                    var value = attr.value;
+
+                    // Ajustes de tipo según la clave
+                    if (key === 'open') {
+                        importedConfig.open = (value === 'true' || value === '1');
+                    } else if (key === 'delay') {
+                        importedConfig.delay = parseInt(value, 10) || 0;
+                    } else {
+                        importedConfig[key] = value;
+                    }
+                });
+
+                // Asignar la nueva configuración y actualizar la vista previa
+                $scope.config = importedConfig;
+                updatePreview();
             };
             
             // Actualizar vista previa
