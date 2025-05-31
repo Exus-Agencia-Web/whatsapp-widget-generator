@@ -11,6 +11,43 @@ class WhatsAppWidget extends HTMLElement {
     super();
     this.attachShadow({ mode: 'open' });
     this.isOpen = false;
+    // Temporizador para la animación intermitente
+    this._idleAnimationTimer = null;
+  }
+  /**
+   * Lanza la animación 'tada' una sola vez.
+   */
+  animateBubble() {
+    const bubble = this.shadowRoot.querySelector('.wa-widget-bubble');
+    if (!bubble) return;
+    // Reinicia la animación eliminando y volviendo a añadir la clase
+    bubble.classList.remove('wa-widget-bubble--animated');
+    // Fuerza re‑flow para reiniciar la animación CSS
+    void bubble.offsetWidth;
+    bubble.classList.add('wa-widget-bubble--animated');
+  }
+
+  /**
+   * Inicia la animación cada 6 s mientras el widget esté cerrado.
+   */
+  startIdleAnimation() {
+    // Disparar inmediatamente una primera animación
+    this.animateBubble();
+    // Asegurarse de no crear múltiples timers
+    this.stopIdleAnimation();
+    this._idleAnimationTimer = setInterval(() => this.animateBubble(), 6000);
+  }
+
+  /**
+   * Detiene la animación cuando el widget se abre.
+   */
+  stopIdleAnimation() {
+    if (this._idleAnimationTimer) {
+      clearInterval(this._idleAnimationTimer);
+      this._idleAnimationTimer = null;
+    }
+    const bubble = this.shadowRoot.querySelector('.wa-widget-bubble');
+    if (bubble) bubble.classList.remove('wa-widget-bubble--animated');
   }
 
   static get observedAttributes() {
@@ -27,7 +64,10 @@ class WhatsAppWidget extends HTMLElement {
     // Configurar estado inicial (abierto o cerrado)
     this.isOpen = this.getAttribute('open') === 'true';
     this.updateWidgetState();
-    
+      // Iniciar animación si arranca cerrado
+      if (!this.isOpen) {
+        this.startIdleAnimation();
+      }
     // Reemplazar tokens en el mensaje preestablecido
     this.processPresetTokens();
     
@@ -89,13 +129,14 @@ class WhatsAppWidget extends HTMLElement {
   updateWidgetState() {
     const bubble = this.shadowRoot.querySelector('.wa-widget-bubble');
     const panel = this.shadowRoot.querySelector('.wa-widget-panel');
-    
     if (this.isOpen) {
       panel.classList.add('wa-widget-panel--open');
       bubble.setAttribute('aria-expanded', 'true');
+      this.stopIdleAnimation();
     } else {
       panel.classList.remove('wa-widget-panel--open');
       bubble.setAttribute('aria-expanded', 'false');
+      this.startIdleAnimation();
     }
   }
 
@@ -346,7 +387,20 @@ class WhatsAppWidget extends HTMLElement {
           color: #999;
           border-top: 1px solid #f0f0f0;
         }
-        
+
+        /* Animación de la burbuja cuando el widget está cerrado */
+        @keyframes waTada {
+          0%   { transform: scale3d(1, 1, 1); }
+          10%, 20% { transform: scale3d(.9, .9, .9) rotate3d(0, 0, 1, -3deg); }
+          30%, 50%, 70%, 90% { transform: scale3d(1.1, 1.1, 1.1) rotate3d(0, 0, 1, 3deg); }
+          40%, 60%, 80% { transform: scale3d(1.1, 1.1, 1.1) rotate3d(0, 0, 1, -3deg); }
+          100% { transform: scale3d(1, 1, 1); }
+        }
+
+        .wa-widget-bubble--animated {
+          animation: waTada 1s ease-in-out;
+        }
+
         @keyframes waFadeIn {
           from {
             opacity: 0;
@@ -421,6 +475,8 @@ class WhatsAppWidget extends HTMLElement {
         this.toggleWidget();
       }
     });
+    // Relanzar animación al pasar el mouse
+    bubble.addEventListener('mouseenter', () => this.animateBubble());
     
     closeBtn.addEventListener('click', () => this.toggleWidget());
     chatBtn.addEventListener('click', () => this.handleChatClick());
