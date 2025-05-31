@@ -493,7 +493,7 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular.min.js"></script>
-    <script src="widget.js"></script>
+    <script src="widget.min.js"></script>
     <script>
 
         (function() {
@@ -629,7 +629,7 @@
                     $scope.generatedCode = scriptTag;
                 } else {
                     // Generar código con elemento personalizado
-                    var scriptTag = '<script async src="https://cdn.liveconnect.chat/whatsapp-widget/widget.js"><\/script>';
+                    var scriptTag = '<script async src="https://cdn.liveconnect.chat/whatsapp-widget/widget.min.js"><\/script>';
                     
                     var widgetTag = '<wa-widget\n';
                     widgetTag += '  phone="' + $scope.config.phone + '"\n';
