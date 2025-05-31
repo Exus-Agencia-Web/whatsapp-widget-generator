@@ -11,9 +11,9 @@
     <!-- Estilos personalizados -->
     <style>
         :root {
-            --primary-color: #008785;
-            --secondary-color: #e0f7f7;
-            --accent-color: #00c3c1;
+            --primary-color: #132445;
+            --secondary-color: #e0e7f7;
+            --accent-color: #243e72;
             --text-color: #333333;
             --light-bg: #f9f9f9;
             --border-radius: 8px;
@@ -26,7 +26,9 @@
             color: var(--text-color);
             padding-bottom: 60px;
         }
-        
+        a {
+            color: var(--primary-color);
+        }
         .navbar {
             background-color: var(--primary-color);
             border: none;
@@ -276,6 +278,9 @@
             color: white;
             border-color: var(--primary-color);
         }
+        wa-widget:not([phone]) {
+            display: none !important;
+        }
     </style>
 </head>
 <body ng-controller="MainController">
@@ -303,37 +308,45 @@
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <label for="color">Color de la marca</label>
-                                    <input type="color" id="color" class="form-control color-picker" ng-model="config.color">
+                                    <label for="bubbleText">Texto de burbuja de chat</label>
+                                    <input type="text" id="bubbleText" class="form-control" ng-model="config.bubbleText" maxlength="24" placeholder="Chatea con nosotros">
+                                    <div class="text-muted"><small>(máximo 24 caracteres)</small></div>
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <label for="bubbleText">Texto de burbuja de chat (máximo 24 caracteres)</label>
-                                    <input type="text" id="bubbleText" class="form-control" ng-model="config.bubbleText" maxlength="24" placeholder="Chatea con nosotros">
+                                    <label for="color">Color del Widget</label>
+                                    <input type="color" id="color" class="form-control color-picker" ng-model="config.color">
+                                </div>
+                            </div>
+                            <div class="clearfix"></div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="delay">Retraso para mostrar el widget <small>({{ config.delay }}s)</small></label>
+                                    <input type="range" id="delay" class="form-control" ng-model="config.delay" min="0" max="120" step="1" style="width:100%;">
+                                    <div>
+                                        <span>0s</span>
+                                        <span class="pull-right">120s</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>Posición</label>
+                                    <div class="radio-custom">
+                                        <label class="radio-inline">
+                                            <input type="radio" ng-model="config.position" value="bottom-left"> Inferior izquierda
+                                        </label>
+                                        <label class="radio-inline">
+                                            <input type="radio" ng-model="config.position" value="bottom-right"> Inferior derecha
+                                        </label>
+                                    </div>
                                 </div>
                             </div>
                         </div>
+                        <small class="help-block">Establece cuántos segundos debe esperar antes de mostrar el widget. 0 = sin retraso.</small>
                         
-                        <div class="form-group">
-                            <label>Posición</label>
-                            <div class="radio-custom">
-                                <label>
-                                    <input type="radio" ng-model="config.position" value="bottom-left"> Abajo a la izquierda
-                                </label>
-                            </div>
-                            <div class="radio-custom">
-                                <label>
-                                    <input type="radio" ng-model="config.position" value="bottom-right"> Abajo a la derecha
-                                </label>
-                            </div>
-                        </div>
                         
-                        <div class="form-group">
-                            <label for="delay">Retraso para mostrar el widget (segundos)</label>
-                            <input type="number" id="delay" class="form-control" ng-model="config.delay" min="0" placeholder="0">
-                            <small class="help-block">Establece cuántos segundos debe esperar antes de mostrar el widget. 0 = sin retraso.</small>
-                        </div>
                     </div>
                 </div>
                 
@@ -346,73 +359,72 @@
                         </button>
                     </div>
                     <div class="panel-body" ng-show="panels.configPanel">
-                        <div class="form-group">
-                            <label for="email">Comparte tu ID de correo electrónico</label>
-                            <input type="email" id="email" class="form-control" ng-model="config.email" placeholder="Correo electrónico">
-                        </div>
                         
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <label for="brand">Nombre de marca</label>
-                                    <input type="text" id="brand" class="form-control" ng-model="config.brand" placeholder="Wati">
+                                    <label for="brand">Nombre de tu marca</label>
+                                    <input type="text" id="brand" class="form-control" ng-model="config.brand" placeholder="LiveConnect" required>
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label for="phone">Número de teléfono con código de país</label>
-                                    <input type="text" id="phone" class="form-control" ng-model="config.phone" placeholder="519900012345">
+                                    <input type="text" id="phone" class="form-control" ng-model="config.phone" placeholder="57300123456" required pattern="^\d{8,15}$">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="email">Ingresa tu correo electrónico</label>
+                                    <input type="email" id="email" class="form-control" ng-model="config.email" placeholder="Correo electrónico" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="logo">URL del logo de tu marca</label>
+                                    <input type="text" id="logo" class="form-control" ng-model="config.logo" placeholder="https://ejemplo.com/logo.png">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>Abrir widget por defecto</label>
+                                    <div class="radio-custom">
+                                        <label class="radio-inline">
+                                            <input type="radio" ng-model="config.open" ng-value="true"> Si
+                                        </label>
+                                        <label class="radio-inline">
+                                            <input type="radio" ng-model="config.open" ng-value="false"> No
+                                        </label>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                        
                         <div class="form-group">
                             <label for="welcome">Texto de bienvenida (máximo 40 caracteres)</label>
                             <textarea id="welcome" class="form-control" ng-model="config.welcome" maxlength="40" placeholder="¡Hola! ¿En qué puedo ayudarte?"></textarea>
                         </div>           
                         
                         <div class="form-group">
-                            <label for="preset">Mensaje precargado (opcional)</label>
+                            <label for="preset">Mensaje predeterminado (opcional)</label>
                             <textarea id="preset" class="form-control" ng-model="config.preset" placeholder="Hola, tengo una consulta sobre {page_title} ({page_link})"></textarea>
                             <div class="help-block">
-                                Puedes usar estos tokens:
+                                Puedes usar estas variables en el mensaje:
                                 <span class="token-button" ng-click="insertToken('preset', '{page_link}')">Enlace de página</span>
                                 <span class="token-button" ng-click="insertToken('preset', '{page_title}')">Título de página</span>
                             </div>
                         </div>
                         
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label>Abrir widget por defecto</label>
-                                    <div class="radio-custom">
-                                        <label>
-                                            <input type="radio" ng-model="config.open" ng-value="true"> Verdadero
-                                        </label>
-                                    </div>
-                                    <div class="radio-custom">
-                                        <label>
-                                            <input type="radio" ng-model="config.open" ng-value="false"> FALSO
-                                        </label>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label for="logo">URL de imagen de marca</label>
-                                    <input type="text" id="logo" class="form-control" ng-model="config.logo" placeholder="https://ejemplo.com/logo.png">
-                                </div>
-                            </div>
-                        </div>
                     </div>
                 </div>
                 
                 <!-- Botón de generación y guardado -->
                 <div class="row">
                     <div class="col-md-6">
+                        <!-- 
                         <button class="btn btn-primary btn-block" ng-click="generateCode()">
                             <span class="glyphicon glyphicon-code"></span> Generar Código del Widget
                         </button>
+                         -->
                     </div>
                     <div class="col-md-6">
                         <button class="btn btn-default btn-block" ng-click="saveConfig()">
@@ -452,15 +464,21 @@
                 
                 <!-- Código generado -->
                 <div class="code-container" ng-show="generatedCode">
-                    <h4>Código generado</h4>
-                    <div class="code-tabs">
-                        <div class="code-tab" ng-class="{'active': codeTab === 'script'}" ng-click="setCodeTab('script')">Atributos en Script</div>
-                        <div class="code-tab" ng-class="{'active': codeTab === 'element'}" ng-click="setCodeTab('element')">Elemento Personalizado</div>
-                    </div>
+                    <h4>Código de tu widget</h4>
+                    <ul class="nav nav-tabs code-tabs">
+                        <li ng-class="{'active': codeTab === 'script'}">
+                            <a href="" ng-click="setCodeTab('script')">Atributos en Script</a>
+                        </li>
+                        <li ng-class="{'active': codeTab === 'element'}">
+                            <a href="" ng-click="setCodeTab('element')">Elemento Personalizado</a>
+                        </li>
+                    </ul>
                     <div class="code-content">{{ generatedCode }}</div>
-                    <button class="btn btn-success btn-copy" ng-click="copyCode()">
-                        <span class="glyphicon glyphicon-copy"></span> Copiar código
-                    </button>
+                    <div class="text-right">
+                        <button class="btn btn-primary btn-copy" ng-click="copyCode()">
+                            <span class="glyphicon glyphicon-copy"></span> Copiar código
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -477,15 +495,29 @@
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular.min.js"></script>
     <script src="widget.js"></script>
     <script>
+
+        (function() {
+            var params = new URLSearchParams(window.location.search);
+            if (params.has('nohead')) {
+            document.addEventListener('DOMContentLoaded', function() {
+                var navbar = document.querySelector('.navbar');
+                if (navbar) {
+                navbar.style.display = 'none';
+                }
+                document.body.style.paddingTop = '20px';
+            });
+            }
+        })();
+
         // Aplicación AngularJS
         var app = angular.module('waWidgetGenerator', []);
         
         app.controller('MainController', function($scope, $timeout) {
             // Configuración por defecto
             $scope.config = {
-                phone: '519900012345',
+                phone: '57300123456',
                 brand: 'LiveConnect',
-                color: '#008785',
+                color: '#132445',
                 bubbleText: 'Chatea con nosotros',
                 welcome: '¡Hola! ¿En qué puedo ayudarte?',
                 preset: 'Hola, tengo una consulta sobre {page_title} ({page_link})',
@@ -747,6 +779,7 @@
                 
                 // Agregar widget al contenedor
                 previewContainer.appendChild(widgetElement);
+                $scope.generateCode();
             }
             
             // Guardar configuraciones en localStorage

@@ -1,6 +1,6 @@
 /**
  * WhatsApp Widget Web Component
- * Versión 1.0.0
+ * Versión 1.1.0
  * 
  * Un componente web personalizado para añadir un botón flotante de WhatsApp
  * a cualquier sitio web, totalmente personalizable y con Shadow DOM.
