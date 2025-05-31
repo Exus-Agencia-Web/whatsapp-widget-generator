@@ -46,6 +46,19 @@ jobs:
             -o "$LOCAL_PATH/widget.min.js" \
             --compress --mangle
 
+      - name: Minificar index.html
+        run: |
+          # Minifica index.html in‑place usando html-minifier-terser
+          npx html-minifier-terser \
+            --collapse-whitespace \
+            --remove-comments \
+            --remove-redundant-attributes \
+            --remove-script-type-attributes \
+            --remove-style-link-type-attributes \
+            --minify-css true \
+            --minify-js true \
+            -o "$LOCAL_PATH/index.html" "$LOCAL_PATH/index.html"
+
       - name: Sincronizar a Cloudflare R2
         env:
           AWS_ACCESS_KEY_ID:     ${{ secrets.CF_R2_ACCESS_KEY_ID }}
