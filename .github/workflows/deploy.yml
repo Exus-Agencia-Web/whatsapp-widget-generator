@@ -6,6 +6,9 @@ name: Deploy a Cloudflare R2
 #    • CF_R2_SECRET_ACCESS_KEY
 #    • CF_R2_ACCOUNT_ID      (el ID numérico de tu cuenta)
 #
+#    (El bucket y la carpeta se definen más abajo, como variables editables
+#     directamente en este archivo, para que no necesites más secretos.)
+#
 # 2) Si tu build genera los archivos en otra carpeta,
 #    cambia LOCAL_PATH más abajo.
 # ────────────────────────────────────────────────────
@@ -20,6 +23,8 @@ env:
   LOCAL_PATH: whatsapp-widget/      # ← cámbialo si tu output es otro
   # Endpoint S3-compatible de R2
   R2_ENDPOINT: https://${{ secrets.CF_R2_ACCOUNT_ID }}.r2.cloudflarestorage.com
+  R2_BUCKET: liveconnect         # ← cambia si tu bucket se llama distinto
+  R2_FOLDER: whatsapp-widget     # ← carpeta/prefijo en el bucket
 
 jobs:
   deploy:
@@ -46,6 +51,6 @@ jobs:
 
           # Subida con eliminación de archivos obsoletos (--delete)
           aws s3 sync "$LOCAL_PATH" \
-            "s3://liveconnect/whatsapp-widget" \
+            "s3://${{ env.R2_BUCKET }}/${{ env.R2_FOLDER }}" \
             --endpoint-url "$R2_ENDPOINT" \
             --delete
