@@ -656,6 +656,13 @@
             // Generar código del widget
             $scope.generateCode = function() {
                 if ($scope.codeTab === 'element') {
+                    // Validar caracteres no válidos en welcome
+                    var welcomeTxt = $scope.config.welcome || '';
+                    var incompatible = /[<>&"'\n\r]/.test(welcomeTxt);
+                    if (incompatible) {
+                        $scope.generatedCode = 'El contenido de bienvenida no es apto para este tipo de inserción. Por favor, utiliza la pestaña "Recomendado" para obtener el código adecuado.';
+                        return;
+                    }
                     // Generar código con elemento personalizado
                     var scriptTag = '<script async src="https://cdn.liveconnect.chat/whatsapp-widget/widget.min.js"><\/script>';
                     
@@ -700,49 +707,69 @@
                     $scope.generatedCode = scriptTag + '\n\n' + widgetTag;
 
                 } else {
+                    // Modo recomendado: <script> con atributos.
+                    // Si el texto de welcome contiene caracteres problemáticos
+                    // (saltos de línea, comillas, <, >, &), cambiamos
+                    // automáticamente al modo alterno initWhatsAppWidget.
+                    var welcomeTxt = $scope.config.welcome || '';
+                    var incompatible = /[<>&"'\n\r]/.test(welcomeTxt);
 
-                    // Generar código con atributos en la etiqueta script
-                    var scriptTag = '<script\n  async\n  src="https://cdn.liveconnect.chat/whatsapp-widget/widget.min.js"';
-                    
-                    // Añadir atributos al script
-                    scriptTag += '\n  phone="' + $scope.config.phone + '"';
-                    scriptTag += '\n  brand="' + $scope.config.brand + '"';
-                    scriptTag += '\n  color="' + $scope.config.color + '"';
-                    
-                    if ($scope.config.bubbleText) {
-                        scriptTag += '\n  bubble-text="' + $scope.config.bubbleText + '"';
+                    if (incompatible) {
+                        // ---- MODO ALTERNATIVO (initWhatsAppWidget) ----
+                        var configJson = JSON.stringify($scope.config, null, 2);
+
+                        var scriptTag = '<script async src="https://cdn.liveconnect.chat/whatsapp-widget/widget.min.js"><\/script>\n\n' +
+                                        '<script>\n' +
+                                        '  document.addEventListener(\'DOMContentLoaded\', function() {\n' +
+                                        '    initWhatsAppWidget(' + configJson + ');\n' +
+                                        '  });\n' +
+                                        '<\/script>';
+
+                        $scope.generatedCode = scriptTag;
+                    } else {
+                        // ---- MODO ATRIBUTOS (por defecto) ----
+                        var scriptTag = '<script\n  async\n  src="https://cdn.liveconnect.chat/whatsapp-widget/widget.min.js"';
+
+                        // Añadir atributos al script
+                        scriptTag += '\n  phone="' + $scope.config.phone + '"';
+                        scriptTag += '\n  brand="' + $scope.config.brand + '"';
+                        scriptTag += '\n  color="' + $scope.config.color + '"';
+
+                        if ($scope.config.bubbleText) {
+                            scriptTag += '\n  bubble-text="' + $scope.config.bubbleText + '"';
+                        }
+
+                        if ($scope.config.welcome) {
+                            scriptTag += '\n  welcome="' + $scope.config.welcome + '"';
+                        }
+
+                        if ($scope.config.preset) {
+                            scriptTag += '\n  preset="' + $scope.config.preset + '"';
+                        }
+
+                        scriptTag += '\n  position="' + $scope.config.position + '"';
+                        scriptTag += '\n  open="' + $scope.config.open + '"';
+
+                        if ($scope.config.logo) {
+                            scriptTag += '\n  logo="' + $scope.config.logo + '"';
+                        }
+
+                        if ($scope.config.lang) {
+                            scriptTag += '\n  lang="' + $scope.config.lang + '"';
+                        }
+
+                        if ($scope.config.email) {
+                            scriptTag += '\n  email="' + $scope.config.email + '"';
+                        }
+
+                        if ($scope.config.delay && $scope.config.delay > 0) {
+                            scriptTag += '\n  delay="' + $scope.config.delay + '"';
+                        }
+
+                        scriptTag += '\n><\\/script>';
+
+                        $scope.generatedCode = scriptTag;
                     }
-                    
-                    if ($scope.config.welcome) {
-                        scriptTag += '\n  welcome="' + $scope.config.welcome + '"';
-                    }
-                    
-                    if ($scope.config.preset) {
-                        scriptTag += '\n  preset="' + $scope.config.preset + '"';
-                    }
-                    
-                    scriptTag += '\n  position="' + $scope.config.position + '"';
-                    scriptTag += '\n  open="' + $scope.config.open + '"';
-                    
-                    if ($scope.config.logo) {
-                        scriptTag += '\n  logo="' + $scope.config.logo + '"';
-                    }
-                    
-                    if ($scope.config.lang) {
-                        scriptTag += '\n  lang="' + $scope.config.lang + '"';
-                    }
-                    
-                    if ($scope.config.email) {
-                        scriptTag += '\n  email="' + $scope.config.email + '"';
-                    }
-                    
-                    if ($scope.config.delay && $scope.config.delay > 0) {
-                        scriptTag += '\n  delay="' + $scope.config.delay + '"';
-                    }
-                    
-                    scriptTag += '\n><\/script>';
-                    
-                    $scope.generatedCode = scriptTag;
                 }
             };
             

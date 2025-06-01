@@ -351,6 +351,26 @@ class WhatsAppWidget extends HTMLElement {
           font-size: 14px;
           max-width: 85%;
         }
+
+        /* Ajustes para listas dentro del mensaje */
+        .wa-widget-message ol,
+        .wa-widget-message ul {
+          margin: 0;            /* eliminar sangría por defecto */
+          padding-left: 0;      /* alinear con el resto del texto */
+          list-style-position: inside; /* viñetas/números dentro del bloque */
+        }
+
+        .wa-widget-message li {
+          margin-left: 0;       /* sin sangría adicional */
+        }
+        
+        .wa-widget-message img {
+          max-width: 100%;
+          height: auto;
+          border-radius: 8px;
+          margin-top: 8px;
+          margin-bottom: 8px;
+        }
         
         .wa-widget-cta {
           display: block;
@@ -520,13 +540,18 @@ function initWidgetFromScriptAttributes() {
   
   // Crear elemento wa-widget
   const widget = document.createElement('wa-widget');
-  
+  let hasAnyAttr = false;   // bandera para saber si el script define al menos un atributo de configuración
+
   // Transferir atributos del script al widget
   validAttributes.forEach(attr => {
     if (script.hasAttribute(attr)) {
       widget.setAttribute(attr, script.getAttribute(attr));
+      hasAnyAttr = true;
     }
   });
+
+  // Evita crear un widget vacío si el script no define ningún atributo.
+  if (!hasAnyAttr) return null;
   
   // Añadir al DOM
   document.body.appendChild(widget);
