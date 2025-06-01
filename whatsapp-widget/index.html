@@ -928,5 +928,20 @@
             }
         }]);
     </script>
+
+    <script>
+        (function () {
+            const qs = new URLSearchParams(location.search);
+            const bg = qs.get("bgcolor");// ?nohead&bgcolor=%23fff
+            if (bg) document.body.style.background = bg;
+        })();
+
+        function sendHeight() {
+            const h = document.documentElement.scrollHeight;
+            parent.postMessage({ type: "lc-resize", height: h }, "*");
+        }
+        window.addEventListener("load", sendHeight);
+        window.addEventListener("resize", sendHeight);
+    </script>
 </body>
 </html>
