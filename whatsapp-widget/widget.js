@@ -85,6 +85,10 @@ class WhatsAppWidget extends HTMLElement {
         container.style.opacity = '1';
       }, delay * 1000);
     }
+    // GA4: widget cargado
+    if (window._lcTrack) {
+      window._lcTrack('lc_widget_load', { domain: location.hostname });
+    }
   }
 
   attributeChangedCallback(name, oldValue, newValue) {
@@ -117,7 +121,12 @@ class WhatsAppWidget extends HTMLElement {
   toggleWidget() {
     this.isOpen = !this.isOpen;
     this.updateWidgetState();
-    
+    if (this.isOpen && window._lcTrack) {
+      window._lcTrack('lc_widget_open', {
+        domain: location.hostname,
+        page: location.pathname
+      });
+    }
     // Disparar evento personalizado
     const eventName = this.isOpen ? 'wa:opened' : 'wa:closed';
     this.dispatchEvent(new CustomEvent(eventName, {
@@ -151,6 +160,14 @@ class WhatsAppWidget extends HTMLElement {
       composed: true
     }));
     
+    // GA4: clic en el enlace del chat
+    if (window._lcTrack) {
+      window._lcTrack('lc_widget_click', {
+        domain: location.hostname,
+        link_url: url,
+        page: location.pathname
+      });
+    }
     // Abrir WhatsApp en nueva pestaña
     window.open(url, '_blank');
   }
@@ -596,3 +613,31 @@ window.initWhatsAppWidget = function(config = {}) {
   
   return widget;
 };
+
+
+/* ===== GA4 bootstrap ===== */
+(function () {
+  const GA_ID = 'G-28VB6VGTRV';        // tu propiedad LiveConnect
+  if (!window.gtag) {               // la página no tiene GA4 cargado
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){ dataLayer.push(arguments); }
+    window.gtag = gtag;
+    gtag('js', new Date());
+
+    // inyecta la librería de GA4
+    const s   = document.createElement('script');
+    s.src     = 'https://www.googletagmanager.com/gtag/js?id=' + GA_ID;
+    s.async   = true;
+    document.head.appendChild(s);
+  }
+  // registra **tu** configuración (no envíes page_view automático)
+  gtag('config', GA_ID, { send_page_view: false });
+  
+  // Exponer el ID y helper para rastreo de eventos del widget
+  window.__LC_GA_ID = GA_ID;
+  window._lcTrack = function (evt, params = {}) {
+    if (window.gtag && window.__LC_GA_ID) {
+      gtag('event', evt, Object.assign({ send_to: window.__LC_GA_ID }, params));
+    }
+  };
+})();
