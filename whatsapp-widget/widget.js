@@ -115,7 +115,7 @@ class WhatsAppWidget extends HTMLElement {
       preset = preset.replace('{page_title}', document.title);
     }
     
-    this.processedPreset = encodeURIComponent(preset);
+    this.processedPreset = preset;
   }
 
   toggleWidget() {
@@ -149,11 +149,58 @@ class WhatsAppWidget extends HTMLElement {
     }
   }
 
+  // Abre un chat de WhatsApp intentando app nativa primero y luego sitio oficial (fallback).
+  // Uso: this.openWhatsAppChat('573001234567', 'Hola, quiero más info');
+   openWhatsAppChat(phone, text = '', options = {}) {
+    const timeoutMs = options.timeoutMs ?? 4000;
+
+    // Normaliza a solo dígitos (formato internacional SIN +)
+    const num = String(phone).replace(/\D/g, '');
+    const msg = encodeURIComponent(text);
+
+    // Detecciones básicas
+    const ua = navigator.userAgent || '';
+    const isMobile = /Android|iPhone|iPad|iPod|Mobile/i.test(ua);
+    const isInstagram = /Instagram/i.test(ua);
+    const isFacebookInApp = /(FBAN|FBAV|FB_IAB)/i.test(ua);
+    const isInApp = isInstagram || isFacebookInApp;
+
+    // Deep link a la app (móvil o escritorio si está instalada)
+    const deepLink = `whatsapp://send?phone=${num}${msg ? `&text=${msg}` : ''}`;
+
+    // Fallback oficial con botón "Abrir WhatsApp"
+    // (en desktop redirige a Web WhatsApp; en móvil a la app o a la tienda si no está)
+    const fallback = `https://api.whatsapp.com/send?phone=${num}${msg ? `&text=${msg}` : ''}`;
+
+    // En navegadores in-app (Instagram/Facebook) los esquemas personalizados suelen bloquearse:
+    if (isInApp) {
+      window.location.assign(fallback);
+      return;
+    }
+
+    // Intento de abrir la app; si falla, en ~1.2s hacemos fallback.
+    const start = Date.now();
+    const timer = setTimeout(() => {
+      // Si la página siguió activa, asumimos que no abrió la app y usamos fallback
+      if (!document.hidden || Date.now() - start < timeoutMs + 50) {
+        window.location.assign(fallback);
+      }
+    }, timeoutMs);
+
+    // Dispara el deep link (debe ejecutarse tras un gesto del usuario)
+    try {
+      window.location.href = deepLink;
+    } catch (e) {
+      clearTimeout(timer);
+      window.location.assign(fallback);
+    }
+  }
+
   handleChatClick() {
-    // Construir URL de WhatsApp
     const phone = this.getAttribute('phone') || '';
     const url = `https://wa.me/${phone}?text=${this.processedPreset}`;
-    
+
+    // Construir URL de WhatsApp
     // Disparar evento personalizado
     this.dispatchEvent(new CustomEvent('wa:click', {
       bubbles: true,
@@ -168,8 +215,14 @@ class WhatsAppWidget extends HTMLElement {
         page: location.pathname
       });
     }
-    // Abrir WhatsApp en nueva pestaña
-    window.open(url, '_blank');
+
+    try {
+      this.openWhatsAppChat(phone, this.processedPreset);
+    } catch (e) {
+      // Abrir WhatsApp en nueva pestaña
+      window.open(url, '_blank');
+      
+    }
   }
 
   handleKeyDown(event) {
